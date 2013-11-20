@@ -9,7 +9,7 @@ VUA_pylib.feature_extractors
 ----------------------------
 Contains functions to extract information from a NAF/KAF file
 
-##VUA_pylib.feature_extractors.constituency##
+*VUA_pylib.feature_extractors.constituency*
 
 class Cconstituency_extractor
 
