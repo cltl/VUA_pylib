@@ -22,9 +22,18 @@ class Cconstituency_extractor:
         self.paths_for_terminal= {}
         for terminal_id in self.terminals.keys():
             paths = self.__expand_node(terminal_id,False)
-            print terminal_id, len(paths)
             self.paths_for_terminal[terminal_id] = paths
         #######################################
+        
+        ## Create, for each non terminal, which are the terminals subsumed
+        self.terms_subsumed_by_nonter = {}  ## ['nonter12'] = set('t1,'t2','t3','t4')
+        for terminal_id, span_terms in self.terminals.items():
+            for path in self.paths_for_terminal[terminal_id]:
+                for nonter in path:
+                    if nonter not in self.terms_subsumed_by_nonter:
+                        self.terms_subsumed_by_nonter[nonter] = set()
+                    for termid in span_terms:
+                        self.terms_subsumed_by_nonter[nonter].add(termid)
         
         ## To print the paths calculated
         for terminal in self.terminals.keys():
@@ -67,11 +76,13 @@ class Cconstituency_extractor:
     def get_deepest_phrase_for_termid(self,termid):
         terminal_id = self.terminal_for_term.get(termid)
         label = None
+        subsumed = None
         if terminal_id is not None:
             first_path = self.paths_for_terminal[terminal_id][0]
             first_phrase_id = first_path[1]
             label = self.label_for_nonter.get(first_phrase_id)
-        return label
+            subsumed = self.terms_subsumed_by_nonter.get(first_phrase_id,[])
+        return label,sorted(list(subsumed))
     
     
     def get_least_common_subsumer(self,from_tid,to_tid):
@@ -177,4 +188,20 @@ class Cconstituency_extractor:
                     paths.append(path)
             return paths
        
-
+    def get_chunks(self,chunk_type):
+        for nonter,this_type in self.label_for_nonter.items():
+            if this_type == chunk_type:
+                subsumed = self.terms_subsumed_by_nonter.get(nonter)
+                if subsumed is not None:
+                    yield sorted(list(subsumed))
+                    
+    def get_all_chunks_for_term(self,termid):
+        terminal_id = self.terminal_for_term.get(termid)
+        paths = self.paths_for_terminal[terminal_id]
+        for path in paths:
+            for node in path:
+                this_type = self.label_for_nonter[node]
+                subsumed =  self.terms_subsumed_by_nonter.get(node)
+                if subsumed is not None:
+                    yield this_type,sorted(list(subsumed))
+        
