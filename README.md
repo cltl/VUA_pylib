@@ -105,8 +105,9 @@ Usage
 n
 >>> print normalize_pos('AdVeRb')
 r
-
 ````
+
+
 
 Contact
 ------
