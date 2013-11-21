@@ -4,18 +4,16 @@ Library in python with includes several functionalities for dealing with NAF/KAF
 
 The library is a python package and it is divided into several subpackages
 
-##VUA_pylib.feature_extractors##
+##VUA_pylib.feature_extractor##
 
 Contains functions to extract information from a NAF/KAF file
 
-###VUA_pylib.feature_extractors.constituency###
 
-
-####class Cconstituency_extractor####
+###class Cconstituency_extractor###
 
 Extract information from the constituency layer in a NAF file
 
-Functions
+Methods:
 + get_deepest_phrase_for_termid(termid): gets the deepest phrase type for a term identifier AND the list of termids in that same chunk
 + get_least_common_subsumer(termid1, termid2): gets the least common subsumer of both ids in the constituency tree
 + get_path_from_to(term1,term2): path in the constituency tree from term1 to term2
@@ -43,13 +41,13 @@ for type_chunk, list_ids in extractor.get_all_chunks_for_term('t713'):
     print type_chunk, list_ids
 ````
 
-###VUA_pylib.feature_extractors.dependency###
 
-####class Cdependency_extractor###
+
+###class Cdependency_extractor###
 
 Extract information from the dependency layer in a NAF file
 
-Functions
+Methods:
 + get_shortest_path(term1,term2) --> gets the shortest dependency path from term1 to term2
 + get_shortest_path_spans(span1,span2) --> gets the shortest dependency path between 2 span of term ids
 + get_path_to_root(termid) --> gets the shortest dependency path from the termid to the sentence root
@@ -57,7 +55,7 @@ Functions
 
 ````
 from NafParserPy import NafParser
-from VUA_pylib.feature_extractor.dependency import Cdependency_extractor
+from VUA_pylib.feature_extractor import Cdependency_extractor
 
 file='naf_examples/10007YRK-H1B1-2SFM-K2HY.txt_8795bbbd2f30103f0ef2f098a183c457.naf'
 naf_obj = NafParser(file)
@@ -71,6 +69,23 @@ p3 = extractor.get_path_to_root('t460')
 p4 = extractor.get_shortest_path_to_root_span(['t444','t445','t446'])
 ````
 
+##VUA_pylib.lexicon##
+
+Encapsulate different lexicons
+
+###class MPQA_subjectivity_lexicon###
+Provides access to the MPQA subjectivity lexicon
+
+Methods:
++ get_type_and_polarity(word,pos=None): returns the type and polarity for the give word (and optionally pos)
+
+Usage:
+````
+>>> from VUA_pylib.lexicon import MPQA_subjectivity_lexicon
+>>> my_lex = MPQA_subjectivity_lexicon()
+>>> my_lex.get_type_and_polarity('abidance','noun')
+('strongsubj', 'positive')
+````
 
 Contact
 ------
