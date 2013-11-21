@@ -87,6 +87,27 @@ Usage:
 ('strongsubj', 'positive')
 ````
 
+
+##VUA_pylib.common##
+
+Common functions widely used
+
+###Functions###
++ get_max_distr_dict(my_dict): gets the max (key,count) from a dict like  my_dict = {'a':20,'b':1,'c':50}
++ normalize_pos(pos): normalize different POS tags to --> a/r/n/v/*
+
+Usage
+````
+>>> from VUA_pylib.common import *
+>>> print get_max_distr_dict({'a':20,'b':1,'c':50})
+('c', 50)
+>>> print normalize_pos('noun')
+n
+>>> print normalize_pos('AdVeRb')
+r
+
+````
+
 Contact
 ------
 * Ruben Izquierdo
