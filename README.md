@@ -4,6 +4,13 @@ Library in python with includes several functionalities for dealing with NAF/KAF
 
 The library is a python package and it is divided into several subpackages
 
+List of subpackages:
+1. VUA_pylib.feature_extractor: functions for extracting elaborated information from KAF/NAF files
+2. VUA_pylib.lexicon: functions for accessing lexicons
+3. VUA_pylib.common: common used functions and utilities
+4. VUA_pylib.io: reading and writing files in different formats, feature files...
+5. VUA_pylib.corpus_reader: loading and querying corpora
+
 ##VUA_pylib.feature_extractor##
 
 Contains functions to extract information from a NAF/KAF file
@@ -106,6 +113,43 @@ n
 >>> print normalize_pos('AdVeRb')
 r
 ````
+
+
+##VUA_pylib.corpus_reader##
+
+Access to corpus
+
+###class Cgoogle_web_nl##
+
+Access to the google web 5-gram in Dutch on http://www.let.rug.nl/gosse/bin/Web1T5_freq.perl
+
+Methods:
++ query(this_query): runs a query like "interessante *"
++ get_items(): returns items which are objects of the class Citem
++ set_limit(l): set the maximum limit of results 
++ set_min_freq(m): set the minimum frequency for n-grams
+
+Usage:
+````
+from VUA_pylib.corpus_reader import Cgoogle_web_nl
+
+google = Cgoogle_web_nl()
+google.query('interessante *')
+for res in google.get_items():
+    print res
+    print res.get_hits()
+    print res.get_word()
+    print res.get_tokens()
+````
+
+###class Citem##
+
+Encapsulates the information for an item: number of this, word string and tokens
+
+Main methods:
++ get_hits(): returns the number of this
++ get_word(): returns the word
++ get_tokens(): returns the list of tokens in the word
 
 
 
