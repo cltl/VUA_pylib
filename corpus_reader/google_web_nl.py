@@ -4,7 +4,7 @@ import sys
 try:
     from lxml import etree
 except:
-    import xml.etree.cElemenTree as etree
+    import xml.etree.cElementTree as etree
 
 class Citem:
     def __init__(self,item_node=None):
@@ -30,6 +30,9 @@ class Citem:
         else:
             s = 'None'
         return s
+    
+    def __repr__(self):
+        return self.__str__()
     
     def get_hits(self):
         return self.hits
@@ -78,8 +81,8 @@ class Cgoogle_web_nl:
         dict_params['.cgifields']='debug'
         dict_params['.cgifields']='optimize'
         params = urllib.urlencode(dict_params)
-        
-        this_url = urllib.urlopen(self.url+'?%s' % params)       
+
+        this_url = urllib.urlopen(self.url+'?%s' % params)   
         xml_obj = etree.parse(this_url)
         this_url.close()
 
@@ -91,3 +94,7 @@ class Cgoogle_web_nl:
         for item in self.items:
             yield item
             
+    def get_all_items(self):
+        return self.items
+    
+
