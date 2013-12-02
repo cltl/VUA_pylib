@@ -16,11 +16,11 @@ def normalize_pos(pos):
     new_pos = pos
     if pos in ['adj','a'] or pos[0:2]=='jj':
         new_pos = 'a'
-    elif pos in ['adverb','r','']: or pos[0:2]=='rb'
+    elif pos in ['adverb','r'] or pos[0:2]=='rb':
         new_pos = 'r'
     elif pos in ['anypos']:
         new_pos = '*'
-    elif pos in ['noun','n'] or pos[0:2]=='nn' or pos[0:2]=='np'
+    elif pos in ['noun','n'] or pos[0:2]=='nn' or pos[0:2]=='np':
         new_pos = 'n'
     elif pos in ['verb','v'] or pos[0]=='v':
         new_pos = 'v'
