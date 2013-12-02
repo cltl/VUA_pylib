@@ -32,6 +32,9 @@ class Cexample:
     def get_features(self):
         for name,value in self.features:
             yield name,value
+            
+    def get_all_features(self):
+        return self.features
     
     
 class Cfeature_index:
@@ -46,31 +49,57 @@ class Cfeature_index:
         self.idx[feat] = num_feat
         return num_feat
         
-    def encode_feature_file_to_svm(self,feat_file_obj,out_fic=sys.stdout):
-        for example in feat_file_obj:
-            class_label = example.get_label()
-            out_fic.write(class_label)
-            feats_for_example = {}
-            clean_feats = ''
-            for name, value in example.get_features():
-                my_feat = name+'###'+value
-                clean_feats+=my_feat+' '
-                num_feat = self.get_number_feat(my_feat)
-                if num_feat is None:
+        
+    def compose_feat(self,name,value):
+        return name+'###'+value
+    
+    
+    def __encode_features(self,feats,modify_index=True):
+        feats_for_example = {}
+        clean_feats = ''
+        for name, value in feats:
+            my_feat = self.compose_feat(name, value)
+            clean_feats+=my_feat+' '
+            num_feat = self.get_number_feat(my_feat)
+            if num_feat is None:
+                if modify_index:
                     num_feat = self.add_feat(my_feat)
+            
+            if num_feat is not None:
                 if num_feat in feats_for_example:
                     feats_for_example[num_feat] += 1
                 else:
                     feats_for_example[num_feat] = 1
+        return sorted(feats_for_example.items(),key=itemgetter(0)),clean_feats
+         
             
-            for feat,freq_feat in sorted(feats_for_example.items(),key=itemgetter(0)):
+    def encode_feature_file_to_svm(self,feat_file_obj,out_fic=sys.stdout):
+        for example in feat_file_obj:
+            class_label = example.get_label()
+            out_fic.write(class_label)
+            feats_for_example, clean_feats =self.__encode_features(example.get_all_features())
+                                                                   
+            for feat,freq_feat in feats_for_example:
                 value = freq_feat
                 out_fic.write(' %d:%d' % (feat,value))
             out_fic.write(' #'+clean_feats+'\n')
+            
+    def encode_example_for_classification(self, feats,out_fic,my_class='0'):
+        feats_for_example, clean_feats =self.__encode_features(feats,modify_index=False)
+        out_fic.write(my_class)
+        for feat,freq_feat in feats_for_example:
+                value = freq_feat
+                out_fic.write(' %d:%d' % (feat,value))
+        out_fic.write(' #'+clean_feats+'\n')        
     
     def save_to_file(self,filename):
         fic = open(filename,'wb')
         cPickle.dump(self.idx, fic, protocol=0)
+        fic.close()
+        
+    def load_from_file(self,filename):
+        fic = open(filename,'rb')
+        self.idx = cPickle.load(fic)
         fic.close()
 
                 
