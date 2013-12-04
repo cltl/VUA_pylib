@@ -48,6 +48,7 @@ class Cgoogle_web_nl:
     def __init__(self):
         self.url='http://www.let.rug.nl/gosse/bin/Web1T5_freq.perl'
         self.limit = 10000
+        self.limit = 100
         self.min_freq = 100
         self.items = []
         
@@ -81,6 +82,7 @@ class Cgoogle_web_nl:
         dict_params['.cgifields']='debug'
         dict_params['.cgifields']='optimize'
         params = urllib.urlencode(dict_params)
+        #print>>sys.stderr,self.url+'?%s' % params
 
         this_url = urllib.urlopen(self.url+'?%s' % params)   
         xml_obj = etree.parse(this_url)
