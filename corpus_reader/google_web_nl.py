@@ -1,3 +1,4 @@
+import urllib2
 import urllib
 import sys
 import time
@@ -8,13 +9,24 @@ except:
     import xml.etree.cElementTree as etree
 
 class Citem:
-    def __init__(self,item_node=None):
+    def __init__(self,item=None):
         self.hits = None
         self.word = None
         self.tokens = None
-        if item_node is not None:
-            self.load_from_item_node(item_node)
+        if item is not None:
+            if isinstance(item,str):
+                self.load_from_string(item)
+            else:
+                self.load_from_item_node(item)
             
+    def load_from_string(self,line):
+        ## Example line: 22865,"de server van"
+        line = line.strip()
+        pos = line.find(',')
+        self.hits = int(line[:pos])
+        self.word = line[pos+2:-1]
+        self.tokens = self.word.split(' ')
+        
     def load_from_item_node(self,item_node):
         hits_node = item_node.find('hits')
         if hits_node is not None:
@@ -48,7 +60,7 @@ class Citem:
 class Cgoogle_web_nl:
     def __init__(self):
         self.url='http://www.let.rug.nl/gosse/bin/Web1T5_freq.perl'
-        self.sleep_this_time = 2	#First time to sleep in case of error
+        self.sleep_this_time = 5	#First time to sleep in case of error
         self.max_trials = 20        
         self.limit = 1000
         self.min_freq = 100
@@ -76,6 +88,7 @@ class Cgoogle_web_nl:
         dict_params = {}
         dict_params['query'] = this_query
         dict_params['mode']='XML'
+        #dict_params['mode']='csv'
         dict_params['limit']=self.limit
         dict_params['threshold']=self.min_freq
         dict_params['optimize']='on'
@@ -91,9 +104,14 @@ class Cgoogle_web_nl:
         this_url = None
         trials = 0
         while not done:
-            this_url = urllib.urlopen(self.url+'?%s' % params)   
-            code = this_url.getcode()
-            if code == 200:
+            try:
+                this_url = urllib2.urlopen(self.url+'?%s' % params)   
+                code = this_url.getcode()
+            except Exception as e:
+                code = -1
+                print>>sys.stderr,str(e)
+
+            if code == 200:                
                 done = True
             else:
                 print>>sys.stderr,'Got an error (code '+str(code)+') querying google web nl, with "'+this_query+'", retrying...'
@@ -107,12 +125,21 @@ class Cgoogle_web_nl:
                     this_url = None
         
         if this_url is not None:
-            xml_obj = etree.parse(this_url)
-            this_url.close()
+            if dict_params['mode'] == 'XML':
+                xml_obj = etree.parse(this_url)
+                this_url.close()
 
-            for item_node in xml_obj.findall('item'):
-                self.items.append(Citem(item_node))
-            del xml_obj
+                for item_node in xml_obj.findall('item'):
+                    self.items.append(Citem(item_node))
+                del xml_obj
+            else: #CSV
+                first_line = True
+                ## The first line is frequency,"N-gram"
+                for line in this_url:
+                    if not first_line:
+                        self.items.append(Citem(line))
+                    first_line = False                
+                
     
     
     def get_items(self):
