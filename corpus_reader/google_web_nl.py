@@ -1,5 +1,6 @@
 import urllib
 import sys
+import time
 
 try:
     from lxml import etree
@@ -47,11 +48,12 @@ class Citem:
 class Cgoogle_web_nl:
     def __init__(self):
         self.url='http://www.let.rug.nl/gosse/bin/Web1T5_freq.perl'
-        self.limit = 10000
-        self.limit = 100
+        self.sleep_this_time = 2	#First time to sleep in case of error
+        self.max_trials = 20        
+        self.limit = 1000
         self.min_freq = 100
         self.items = []
-        
+            
     
     def set_limit(self,l):
         if not isinstance(l, int):
@@ -83,14 +85,35 @@ class Cgoogle_web_nl:
         dict_params['.cgifields']='optimize'
         params = urllib.urlencode(dict_params)
         #print>>sys.stderr,self.url+'?%s' % params
+        
+        
+        done = False
+        this_url = None
+        trials = 0
+        while not done:
+            this_url = urllib.urlopen(self.url+'?%s' % params)   
+            code = this_url.getcode()
+            if code == 200:
+                done = True
+            else:
+                print>>sys.stderr,'Got an error (code '+str(code)+') querying google web nl, with "'+this_query+'", retrying...'
+                print>>sys.stderr,'Trial ',trials,' waiting ',self.sleep_this_time,'seconds'
+                time.sleep(self.sleep_this_time)
+                trials += 1
+                self.sleep_this_time += 1
+                if trials == self.max_trials:
+                    print>>sys.stderr,'Maximum number of trials reached. Giving up...'
+                    done = True
+                    this_url = None
+        
+        if this_url is not None:
+            xml_obj = etree.parse(this_url)
+            this_url.close()
 
-        this_url = urllib.urlopen(self.url+'?%s' % params)   
-        xml_obj = etree.parse(this_url)
-        this_url.close()
-
-        for item_node in xml_obj.findall('item'):
-            self.items.append(Citem(item_node))
-        del xml_obj
+            for item_node in xml_obj.findall('item'):
+                self.items.append(Citem(item_node))
+            del xml_obj
+    
     
     def get_items(self):
         for item in self.items:
@@ -99,4 +122,5 @@ class Cgoogle_web_nl:
     def get_all_items(self):
         return self.items
     
-
+    def len(self):
+        return len(self.items)
