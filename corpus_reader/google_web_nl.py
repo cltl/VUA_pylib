@@ -79,7 +79,7 @@ class Cgoogle_web_nl:
             sys.exit(-1)
         self.min_freq = m
     
-    def query(self,this_query):
+    def query(self,this_query,fixed='shown'):
         #http://www.let.rug.nl/gosse/bin/Web1T5_freq.perl?
         #query=interessante%20*&
         #mode=XML&limit=10000&
@@ -93,7 +93,7 @@ class Cgoogle_web_nl:
         dict_params['threshold']=self.min_freq
         dict_params['optimize']='on'
         dict_params['wildcards']='listed normally'
-        dict_params['fixed']='shown'
+        dict_params['fixed']=fixed
         dict_params['.cgifields']='debug'
         dict_params['.cgifields']='optimize'
         params = urllib.urlencode(dict_params)
@@ -151,3 +151,6 @@ class Cgoogle_web_nl:
     
     def len(self):
         return len(self.items)
+    def __iter__(self):
+        for item in self.items:
+            yield item
