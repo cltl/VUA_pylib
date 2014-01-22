@@ -90,7 +90,7 @@ class Cfeature_index:
         for feat,freq_feat in feats_for_example:
                 value = freq_feat
                 out_fic.write(' %d:%d' % (feat,value))
-        out_fic.write(' #'+clean_feats+'\n')        
+        out_fic.write(' #'+clean_feats.encode('utf-8')+'\n')        
     
     def save_to_file(self,filename):
         fic = open(filename,'wb')
