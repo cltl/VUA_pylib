@@ -113,7 +113,7 @@ class Cfeature_file:
             fic = open(self.filename,'r')
             for line in fic:
                 if line[0] != '#':
-                    yield Cexample(line)
+                    yield Cexample(line.decode('utf-8'))
             fic.close()
     
    
